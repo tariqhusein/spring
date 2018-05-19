@@ -2,7 +2,9 @@ package adler.syria.XtErp.ImportProcess;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -18,7 +20,8 @@ public class ImportableColumns {
 	private String name;
 	private String dataType;
 	
-	@OneToMany(mappedBy = "importableColumn")
+	@OneToMany(mappedBy = "importableColumn",cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
 	private Set<ExcelColumn> excelColumn;
 
 	public Long getId() {

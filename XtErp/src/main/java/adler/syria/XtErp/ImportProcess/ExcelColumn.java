@@ -1,6 +1,5 @@
 package adler.syria.XtErp.ImportProcess;
 
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,8 +15,8 @@ public class ExcelColumn {
 	@ManyToOne
 	private ImportableColumns importableColumn;
 	@ManyToOne
-	private UploadedFile uploadedFile ;
-	
+	private UploadedFile uploadedFile;
+	private ExcelColumn () {}
 	public Long getId() {
 		return id;
 	}
@@ -39,16 +38,15 @@ public class ExcelColumn {
 	}
 
 	public void setUploadedFile(UploadedFile uploadedFile) {
+
 		this.uploadedFile = uploadedFile;
 	}
 
-	public ExcelColumn() {
-	}
-
-	public ExcelColumn(String name, int excelColumnIndex) {
+	public ExcelColumn(String name, int excelColumnIndex, UploadedFile uploadedFile) {
 		super();
 		this.name = name;
 		this.excelColumnIndex = excelColumnIndex;
+		this.uploadedFile = uploadedFile;
 	}
 
 	public String getName() {

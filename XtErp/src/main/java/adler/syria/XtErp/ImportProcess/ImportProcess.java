@@ -1,8 +1,12 @@
 package adler.syria.XtErp.ImportProcess;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -15,7 +19,8 @@ public class ImportProcess {
 	@GeneratedValue
 	private Long id;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
 	private UploadedFile uploadedFile;
 	
 	private Date date;
@@ -27,10 +32,12 @@ public class ImportProcess {
 	}
 
 	public UploadedFile getUploadedFile() {
+		
 		return uploadedFile;
 	}
 
 	public void setUploadedFile(UploadedFile uploadedFile) {
+		uploadedFile.setImportProcess(this);
 		this.uploadedFile = uploadedFile;
 	}
 
@@ -39,6 +46,12 @@ public class ImportProcess {
 	}
 
 	public void setSearchProfile(SearchProfile searchProfile) {
+		if(searchProfile.getImportProcessSet()==null)
+		{
+			searchProfile.setImportProcessSet(new HashSet<ImportProcess>());
+		}
+		searchProfile.getImportProcessSet().add(this);
+		
 		this.searchProfile = searchProfile;
 	}
 

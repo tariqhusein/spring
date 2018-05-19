@@ -14,6 +14,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.boot.Metadata;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,25 +25,45 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import adler.syria.XtErp.storage.StorageService;
 import adler.syria.XtErp.ImportProcess.ExcelColumn;
+import adler.syria.XtErp.ImportProcess.FileMetaData;
 import adler.syria.XtErp.ImportProcess.ImportProcess;
 import adler.syria.XtErp.ImportProcess.SearchProfile;
 import adler.syria.XtErp.ImportProcess.UploadedFile;
+import adler.syria.XtErp.ImportProcess.Repositories.ExcelCoumnRepository;
 import adler.syria.XtErp.ImportProcess.Repositories.ImportProcessRepository;
+import adler.syria.XtErp.ImportProcess.Repositories.SearchProfileRepository;
+import adler.syria.XtErp.ImportProcess.Repositories.UploadedFileRepository;
 
 @RestController
 @RequestMapping("/file/upload")
 
 public class ImportProcessController {
-	private final ImportProcessRepository importProcessRepository;
+	
 	private final StorageService storageService;
+	private final UploadedFileRepository uploadedFileRepository;
+	private final SearchProfileRepository searchProfileRepository;
 
 	@Autowired
-	public ImportProcessController(ImportProcessRepository importProcessRepository, StorageService storageService) {
+	public ImportProcessController(SearchProfileRepository searchProfileRepository,
+			 StorageService storageService,UploadedFileRepository uploadedFileRepository) {
 		super();
-		this.importProcessRepository = importProcessRepository;
+		this.uploadedFileRepository = uploadedFileRepository;
 		this.storageService = storageService;
+		this.searchProfileRepository = searchProfileRepository;
 	}
-
+	
+	@RequestMapping(value= "/metadata",method = RequestMethod.GET)
+	public FileMetaData getFileMetaData(@RequestParam("uploadedFileUniqueId") Long fileID) {
+		return uploadedFileRepository.getOne(fileID).getMetaData();
+	}
+	
+	@RequestMapping(value= "/columns",method = RequestMethod.GET)
+	public String getFileColumns(@RequestParam("uploadedFileUniqueId") Long fileID) {
+		JSONArray res =
+		 uploadedFileRepository.getOne(fileID).getExcelColumnsAsJson();
+		return res.toString();
+				}
+	
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
 	public void startImportingProcess(@RequestParam("uploadedFile") MultipartFile file, HttpServletResponse response) {
@@ -49,7 +71,6 @@ public class ImportProcessController {
 		UploadedFile uploadedFile = new UploadedFile();
 		Set<ExcelColumn> columns = new HashSet<ExcelColumn>();
 		FileInputStream excelFile = null;
-
 
 		try {
 
@@ -70,8 +91,8 @@ public class ImportProcessController {
 
 				Cell currentCell = cellsInRow.next();
 
-				columns.add(new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex()));
-
+				columns.add(
+						new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex(), uploadedFile));
 			}
 
 			excelFile.close();
@@ -79,9 +100,13 @@ public class ImportProcessController {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+
 		uploadedFile.setExcelColumns(columns);
-		uploadedFile.getMetaData().setFileName(file.getOriginalFilename());
-		uploadedFile.getMetaData().setFileSize(file.getSize());
+		FileMetaData metaData = new FileMetaData();
+		metaData.setFileName(file.getOriginalFilename());
+		metaData.setFileSize(file.getSize());
+		uploadedFile.setMetaData(metaData);
+
 		String extension = "";
 
 		int i = file.getOriginalFilename().lastIndexOf('.');
@@ -89,11 +114,16 @@ public class ImportProcessController {
 			extension = file.getOriginalFilename().substring(i + 1);
 		}
 		uploadedFile.getMetaData().setFileType(extension);
+		//uploadedFileRepository.save(uploadedFile);
+
 		importProcess.setDate(new java.util.Date());
 		importProcess.setUploadedFile(uploadedFile);
 		SearchProfile searchProfile = new SearchProfile();
 		searchProfile.setLastUsed(new java.util.Date());
-		
+
+		importProcess.setSearchProfile(searchProfile);
+		searchProfileRepository.save(searchProfile);
+
 		response.setContentType("text/html; charset=UTF-8");
 		try {
 			response.getWriter().write("{success:true, id:'" + uploadedFile.getId() + "'}");
