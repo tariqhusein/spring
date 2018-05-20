@@ -2,7 +2,6 @@ package adler.syria.XtErp.ImportProcess.Controllers;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.boot.Metadata;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +27,6 @@ import adler.syria.XtErp.ImportProcess.FileMetaData;
 import adler.syria.XtErp.ImportProcess.ImportProcess;
 import adler.syria.XtErp.ImportProcess.SearchProfile;
 import adler.syria.XtErp.ImportProcess.UploadedFile;
-import adler.syria.XtErp.ImportProcess.Repositories.ExcelCoumnRepository;
-import adler.syria.XtErp.ImportProcess.Repositories.ImportProcessRepository;
 import adler.syria.XtErp.ImportProcess.Repositories.SearchProfileRepository;
 import adler.syria.XtErp.ImportProcess.Repositories.UploadedFileRepository;
 
@@ -38,32 +34,78 @@ import adler.syria.XtErp.ImportProcess.Repositories.UploadedFileRepository;
 @RequestMapping("/file/upload")
 
 public class ImportProcessController {
-	
+
 	private final StorageService storageService;
 	private final UploadedFileRepository uploadedFileRepository;
 	private final SearchProfileRepository searchProfileRepository;
 
 	@Autowired
-	public ImportProcessController(SearchProfileRepository searchProfileRepository,
-			 StorageService storageService,UploadedFileRepository uploadedFileRepository) {
+	public ImportProcessController(SearchProfileRepository searchProfileRepository, StorageService storageService,
+			UploadedFileRepository uploadedFileRepository) {
 		super();
 		this.uploadedFileRepository = uploadedFileRepository;
 		this.storageService = storageService;
 		this.searchProfileRepository = searchProfileRepository;
 	}
-	
-	@RequestMapping(value= "/metadata",method = RequestMethod.GET)
+
+	@RequestMapping(value = "/metadata", method = RequestMethod.GET)
 	public FileMetaData getFileMetaData(@RequestParam("uploadedFileUniqueId") Long fileID) {
 		return uploadedFileRepository.getOne(fileID).getMetaData();
 	}
-	
-	@RequestMapping(value= "/columns",method = RequestMethod.GET)
+
+	@RequestMapping(value = "/columns", method = RequestMethod.GET)
 	public String getFileColumns(@RequestParam("uploadedFileUniqueId") Long fileID) {
-		JSONArray res =
-		 uploadedFileRepository.getOne(fileID).getExcelColumnsAsJson();
+		JSONArray res = uploadedFileRepository.getOne(fileID).getExcelColumnsAsJson();
 		return res.toString();
-				}
-	
+	}
+
+	public void startImportingProcess(@RequestParam("uploadedFile") MultipartFile file,
+			@RequestParam("searchProfileId") Long searchProfileID, HttpServletResponse response) {
+		ImportProcess importProcess = new ImportProcess();
+		UploadedFile uploadedFile = new UploadedFile();
+		Set<ExcelColumn> oldColumns;
+		Set<ExcelColumn> columns = new HashSet<ExcelColumn>();
+
+		SearchProfile searchProfile = searchProfileRepository.getOne(searchProfileID);
+		oldColumns = searchProfile.getImportProcessSet().iterator().next().getUploadedFile().getExcelColumns();
+
+		storageService.store(file);
+
+		searchProfile.setLastUsed(new java.util.Date());
+
+		importProcess.setDate(new java.util.Date());
+		importProcess.setSearchProfile(searchProfile);
+		importProcess.setUploadedFile(uploadedFile);
+		uploadedFile.setImportProcess(importProcess);
+		Iterator<ExcelColumn> iterator = oldColumns.iterator();
+		while (iterator.hasNext()) {
+			ExcelColumn column = iterator.next();
+			columns.add(new ExcelColumn(column.getName(), column.getExcelColumnIndex(), uploadedFile,column.getDataType()));
+		}
+		uploadedFile.setExcelColumns(columns);
+
+		FileMetaData metaData = new FileMetaData();
+		metaData.setFileName(file.getOriginalFilename());
+		metaData.setFileSize(file.getSize());
+		uploadedFile.setMetaData(metaData);
+
+		String extension = "";
+
+		int i = file.getOriginalFilename().lastIndexOf('.');
+		if (i > 0) {
+			extension = file.getOriginalFilename().substring(i + 1);
+		}
+		uploadedFile.getMetaData().setFileType(extension);
+		searchProfileRepository.saveAndFlush(searchProfile);
+		response.setContentType("text/html; charset=UTF-8");
+		try {
+			response.getWriter().write("{success:true, id:'" + uploadedFile.getId() + "'}");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
 	public void startImportingProcess(@RequestParam("uploadedFile") MultipartFile file, HttpServletResponse response) {
@@ -90,9 +132,18 @@ public class ImportProcessController {
 			while (cellsInRow.hasNext()) {
 
 				Cell currentCell = cellsInRow.next();
-
-				columns.add(
-						new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex(), uploadedFile));
+				String dataType;
+				if (currentCell.getCellType() == Cell.CELL_TYPE_NUMERIC)
+					dataType = int.class.toString();
+				else if (currentCell.getCellType() == Cell.CELL_TYPE_STRING)
+					dataType = String.class.toString();
+				else if (currentCell.getCellType() == Cell.CELL_TYPE_BOOLEAN)
+					dataType = boolean.class.toString();
+				else
+					dataType = String.class.toString();
+				
+				columns.add(new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex(),
+						uploadedFile, dataType));
 			}
 
 			excelFile.close();
@@ -114,7 +165,7 @@ public class ImportProcessController {
 			extension = file.getOriginalFilename().substring(i + 1);
 		}
 		uploadedFile.getMetaData().setFileType(extension);
-		//uploadedFileRepository.save(uploadedFile);
+		// uploadedFileRepository.save(uploadedFile);
 
 		importProcess.setDate(new java.util.Date());
 		importProcess.setUploadedFile(uploadedFile);

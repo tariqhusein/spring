@@ -1,5 +1,6 @@
 package adler.syria.XtErp.ImportProcess;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,16 +14,31 @@ import javax.persistence.OneToMany;
 @Entity
 public class ImportableColumns {
 
+	public ImportableColumns(ImportableEntities importableEntity, String name, String dataType,
+			Set<ExcelColumn> excelColumnSet) {
+		super();
+		this.importableEntity = importableEntity;
+		this.name = name;
+		this.dataType = dataType;
+		this.excelColumnSet = excelColumnSet;
+	}
+	private ImportableColumns() {}
 	@Id
 	@GeneratedValue
 	private Long id;
 	private ImportableEntities importableEntity;
 	private String name;
 	private String dataType;
-	
+	private List<String> aliases;
+	public List<String> getAliases() {
+		return aliases;
+	}
+	public void setAliases(List<String> aliases) {
+		this.aliases = aliases;
+	}
 	@OneToMany(mappedBy = "importableColumn",cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
-	private Set<ExcelColumn> excelColumn;
+	private Set<ExcelColumn> excelColumnSet;
 
 	public Long getId() {
 		return id;
@@ -56,12 +72,12 @@ public class ImportableColumns {
 		this.dataType = dataType;
 	}
 
-	public Set<ExcelColumn> getExcelColumn() {
-		return excelColumn;
+	public Set<ExcelColumn> getExcelColumnSet() {
+		return excelColumnSet;
 	}
 
-	public void setExcelColumn(Set<ExcelColumn> excelColumn) {
-		this.excelColumn = excelColumn;
+	public void setExcelColumnSet(Set<ExcelColumn> excelColumnSet) {
+		this.excelColumnSet = excelColumnSet;
 	}
 
 }

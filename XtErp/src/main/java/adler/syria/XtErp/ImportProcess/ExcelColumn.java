@@ -16,7 +16,27 @@ public class ExcelColumn {
 	private ImportableColumns importableColumn;
 	@ManyToOne
 	private UploadedFile uploadedFile;
-	private ExcelColumn () {}
+	private String dataType;
+
+	public ImportableColumns getImportableColumn() {
+		return importableColumn;
+	}
+
+	public void setImportableColumn(ImportableColumns importableColumn) {
+		this.importableColumn = importableColumn;
+	}
+
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
+	private ExcelColumn() {
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -42,11 +62,12 @@ public class ExcelColumn {
 		this.uploadedFile = uploadedFile;
 	}
 
-	public ExcelColumn(String name, int excelColumnIndex, UploadedFile uploadedFile) {
+	public ExcelColumn(String name, int excelColumnIndex, UploadedFile uploadedFile, String dataType) {
 		super();
 		this.name = name;
 		this.excelColumnIndex = excelColumnIndex;
 		this.uploadedFile = uploadedFile;
+		this.dataType = dataType;
 	}
 
 	public String getName() {
