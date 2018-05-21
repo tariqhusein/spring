@@ -72,8 +72,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
                 type: 'ajax',
                 url: '/file/upload/columns',
                 reader: {
-                    type: 'json',
-                    rootProperty: 'columns'
+                    type: 'json'
                 }
             }
         }

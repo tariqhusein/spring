@@ -120,10 +120,12 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                 params:{uploadedFileUniqueId:FileResId},
                 //jsonData:excelColumn,
                 success: function(response2){
-                    console.log(response2);
-                    // console.log(Ext.util.JSON.decode(response2.result));
+                    console.log(response2.responseText);
+                    var responseData=Ext.util.JSON.decode(response2.responseText);
+                    //var columnsStr=Ext.getStore('')
+                    console.log(responseData);
                     var columnGrid= button.up('form').down('#ColumnsGridPanelMainForm');
-                    columnGrid.getStore().load();
+                    columnGrid.getStore().loadData(responseData);
                 }
             });
         }

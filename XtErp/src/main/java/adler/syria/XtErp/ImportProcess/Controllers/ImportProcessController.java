@@ -1,9 +1,12 @@
 package adler.syria.XtErp.ImportProcess.Controllers;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.context.spi.CurrentSessionContext;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +26,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import adler.syria.XtErp.storage.StorageService;
+import adler.syria.XtErp.Entities.EntityManager;
 import adler.syria.XtErp.ImportProcess.ExcelColumn;
 import adler.syria.XtErp.ImportProcess.FileMetaData;
 import adler.syria.XtErp.ImportProcess.ImportProcess;
+import adler.syria.XtErp.ImportProcess.ImportableColumns;
+import adler.syria.XtErp.ImportProcess.ImportableEntities;
 import adler.syria.XtErp.ImportProcess.SearchProfile;
 import adler.syria.XtErp.ImportProcess.UploadedFile;
+import adler.syria.XtErp.ImportProcess.Repositories.ImportProcessRepository;
 import adler.syria.XtErp.ImportProcess.Repositories.SearchProfileRepository;
 import adler.syria.XtErp.ImportProcess.Repositories.UploadedFileRepository;
 
@@ -38,14 +46,16 @@ public class ImportProcessController {
 	private final StorageService storageService;
 	private final UploadedFileRepository uploadedFileRepository;
 	private final SearchProfileRepository searchProfileRepository;
+	private final EntityManager entityManager;
 
 	@Autowired
 	public ImportProcessController(SearchProfileRepository searchProfileRepository, StorageService storageService,
-			UploadedFileRepository uploadedFileRepository) {
+			UploadedFileRepository uploadedFileRepository, EntityManager entityManager) {
 		super();
 		this.uploadedFileRepository = uploadedFileRepository;
 		this.storageService = storageService;
 		this.searchProfileRepository = searchProfileRepository;
+		this.entityManager = entityManager;
 	}
 
 	@RequestMapping(value = "/metadata", method = RequestMethod.GET)
@@ -80,7 +90,8 @@ public class ImportProcessController {
 		Iterator<ExcelColumn> iterator = oldColumns.iterator();
 		while (iterator.hasNext()) {
 			ExcelColumn column = iterator.next();
-			columns.add(new ExcelColumn(column.getName(), column.getExcelColumnIndex(), uploadedFile,column.getDataType()));
+			columns.add(new ExcelColumn(column.getName(), column.getExcelColumnIndex(), uploadedFile,
+					column.getDataType()));
 		}
 		uploadedFile.setExcelColumns(columns);
 
@@ -109,6 +120,7 @@ public class ImportProcessController {
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
 	public void startImportingProcess(@RequestParam("uploadedFile") MultipartFile file, HttpServletResponse response) {
+
 		ImportProcess importProcess = new ImportProcess();
 		UploadedFile uploadedFile = new UploadedFile();
 		Set<ExcelColumn> columns = new HashSet<ExcelColumn>();
@@ -141,7 +153,7 @@ public class ImportProcessController {
 					dataType = boolean.class.toString();
 				else
 					dataType = String.class.toString();
-				
+
 				columns.add(new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex(),
 						uploadedFile, dataType));
 			}
@@ -184,4 +196,42 @@ public class ImportProcessController {
 		}
 	}
 
+	@RequestMapping(value = "/import", method = RequestMethod.POST)
+	public void importFile(@RequestParam("uploadedFileUniqueId") Long fileID) {
+		UploadedFile uploadedFile = uploadedFileRepository.getOne(fileID);				
+		try {
+			FileInputStream excelFile = new FileInputStream(uploadedFile.getMetaData().getFileName());
+			Workbook workbook = new XSSFWorkbook(excelFile);
+
+			Sheet sheet = workbook.getSheetAt(0);
+			Iterator<Row> rows = sheet.iterator();
+			int rowIndex = 1;
+			while (rows.hasNext()) {
+				Row currentRow = rows.next();
+				if (rowIndex == 1)
+					currentRow = rows.next();
+				rowIndex++;
+				Map<String, Object> values = new HashMap<String, Object>();
+				Set<ExcelColumn> columns = uploadedFile.getExcelColumns();
+				Iterator<ExcelColumn> iterator = columns.iterator();
+				while (iterator.hasNext()) {
+					ExcelColumn col = iterator.next();
+					if (col.getImportableColumn() != null) {
+						int index = col.getExcelColumnIndex();
+						Object value = currentRow.getCell(index).getStringCellValue();
+						values.put(col.getName(), value);
+					}
+				}
+				ImportableEntities importableEntity = uploadedFile.getExcelColumns().iterator().next()
+						.getImportableColumn().getImportableEntity();
+				entityManager.populatetWithValues(importableEntity, values);
+			}
+			excelFile.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }

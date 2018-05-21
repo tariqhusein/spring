@@ -1,6 +1,5 @@
 package adler.syria.XtErp.ImportProcess;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -29,13 +28,7 @@ public class ImportableColumns {
 	private ImportableEntities importableEntity;
 	private String name;
 	private String dataType;
-	private List<String> aliases;
-	public List<String> getAliases() {
-		return aliases;
-	}
-	public void setAliases(List<String> aliases) {
-		this.aliases = aliases;
-	}
+	
 	@OneToMany(mappedBy = "importableColumn",cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
 	private Set<ExcelColumn> excelColumnSet;

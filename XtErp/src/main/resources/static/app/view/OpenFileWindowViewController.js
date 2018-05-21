@@ -80,10 +80,8 @@ Ext.define('MetaFileData.view.OpenFileWindowViewController', {
                                     method  : 'GET',
                                     params:{uploadedFileUniqueId:FileResId},
                                     success: function(response1){
-                                    	
                                         var columnStr=Ext.getStore('ExcelColumnStore');
                                         columnStr.load();
-                                        console.dir(columnStr);
                                     }
                                 });
                                 // button.up('window').loader.load( button.up('window').autoload.url);
