@@ -28,7 +28,10 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
         'Ext.form.field.Display',
         'Ext.grid.Panel',
         'Ext.grid.column.Number',
-        'Ext.view.Table'
+        'Ext.view.Table',
+        'Ext.grid.column.Widget',
+        'Ext.form.field.ComboBox',
+        'Ext.grid.column.Action'
     ],
 
     controller: 'exterp.main.mainpanel',
@@ -47,7 +50,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
             items: [
                 {
                     xtype: 'panel',
-                    title: 'Files',
+                    title: 'Excel Files',
                     items: [
                         {
                             xtype: 'form',
@@ -141,6 +144,43 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                             width: 160,
                                                             dataIndex: 'name',
                                                             text: 'Column Name'
+                                                        },
+                                                        {
+                                                            xtype: 'widgetcolumn',
+                                                            text: 'Entities',
+                                                            widget: {
+                                                                xtype: 'combobox',
+                                                                name: 'entityName',
+                                                                displayField: 'entityName',
+                                                                bind: {
+                                                                    store: '{EntityStore}'
+                                                                },
+                                                                listeners: {
+                                                                    select: 'onComboboxSelect'
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            xtype: 'widgetcolumn',
+                                                            text: 'Columns',
+                                                            widget: {
+                                                                xtype: 'combobox',
+                                                                itemId: 'entityColumnName',
+                                                                name: 'entityColumnName',
+                                                                displayField: 'name',
+                                                                valueField: 'id',
+                                                                bind: {
+                                                                    store: '{importableColumnStore}'
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            xtype: 'actioncolumn',
+                                                            items: [
+                                                                {
+                                                                    altText: 'Link!!'
+                                                                }
+                                                            ]
                                                         }
                                                     ]
                                                 }

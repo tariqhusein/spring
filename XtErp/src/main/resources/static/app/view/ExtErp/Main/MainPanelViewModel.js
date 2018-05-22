@@ -75,6 +75,45 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
                     type: 'json'
                 }
             }
+        },
+        EntityStore: {
+            autoLoad: true,
+            proxy: {
+                type: 'ajax',
+                url: '/entities',
+                reader: {
+                    type: 'json',
+                    transform: function(data) {
+                        data=data.map(function(val){return {entityName:val};
+                    });
+                    return data;
+
+                    }
+                }
+            },
+            fields: [
+                {
+                    name: 'entityName'
+                }
+            ]
+        },
+        importableColumnStore: {
+            model: 'MetaFileData.model.importableColumn',
+            fields: [
+                {
+                    name: 'id'
+                },
+                {
+                    name: 'name'
+                },
+                {
+                    name: 'dataType'
+                }
+            ],
+            proxy: {
+                type: 'ajax',
+                url: '/entities/Client/columns'
+            }
         }
     }
 

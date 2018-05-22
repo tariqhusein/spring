@@ -26,7 +26,9 @@ Ext.application({
         'UploadedFile',
         'ColumnsModel',
         'ExcelColumnModel',
-        'DBColumn'
+        'DBColumn',
+        'EntityModel',
+        'importableColumn'
     ],
     views: [
         'MainView',

@@ -128,10 +128,50 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                     columnGrid.getStore().loadData(responseData);
                 }
             });
+            Ext.Ajax.request({
+                url: '/entities',
+                method  : 'GET',
+                success: function(response3){
+                    console.log(response3.responseText);
+                    var responseData2=Ext.util.JSON.decode(response3.responseText);
+                    console.log(responseData2);
+                }
+            });
         }
         catch(ex)
         {
             console.log(ex);
+        }
+    },
+
+    onComboboxSelect: function(combo, record, eOpts) {
+        try
+        {
+            var entityName=combo.getValue();
+            var myUrl='/entities/'+entityName+'/columns';
+            console.log(myUrl);
+
+            Ext.Ajax.request({
+
+                url: myUrl,
+                method  : 'GET',
+
+                //jsonData:excelColumn,
+                success: function(response2){
+                    console.log(response2.responseText);
+                    var responseData=Ext.util.JSON.decode(response2.responseText);
+                    //var columnsStr=Ext.getStore('')
+                    console.log(responseData);
+                    var columnCmb= combo.up('form').down('#entityColumnName');
+                    columnCmb.getStore().loadData(responseData);
+                }
+            });
+
+
+        }
+        catch(ex1)
+        {
+            console.log(ex1);
         }
     }
 
