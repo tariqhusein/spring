@@ -74,6 +74,7 @@ public class ImportableEntitiesController {
 			if (importableColumn.getExcelColumnSet() == null)
 				importableColumn.setExcelColumnSet(new HashSet<ExcelColumn>());
 			importableColumn.getExcelColumnSet().add(excelColumn);
+			uploadedFileRepository.save(uploadedFile);
 			response.setContentType("text/html; charset=UTF-8");
 			try {
 				response.getWriter().write("{success:true}");

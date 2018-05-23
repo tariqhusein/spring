@@ -85,6 +85,16 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                             items: [
                                                 {
                                                     xtype: 'label',
+                                                    itemId: 'columnName',
+                                                    text: 'My Label'
+                                                },
+                                                {
+                                                    xtype: 'label',
+                                                    itemId: 'entityName',
+                                                    text: 'My Label'
+                                                },
+                                                {
+                                                    xtype: 'label',
                                                     itemId: 'metaFileNamelbl',
                                                     text: 'File Name'
                                                 },
@@ -168,17 +178,52 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                                 itemId: 'entityColumnName',
                                                                 name: 'entityColumnName',
                                                                 displayField: 'name',
-                                                                valueField: 'id',
+                                                                valueField: 'name',
                                                                 bind: {
                                                                     store: '{importableColumnStore}'
+                                                                },
+                                                                listeners: {
+                                                                    select: 'onEntityColumnNameSelect'
                                                                 }
                                                             }
                                                         },
                                                         {
                                                             xtype: 'actioncolumn',
+                                                            width: 50,
+                                                            text: 'Attach',
+                                                            iconCls: 'x-fa fa-paperclip',
                                                             items: [
                                                                 {
-                                                                    altText: 'Link!!'
+                                                                    handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                                                                        var FileResId=view.up('form').down('#metaFileNamelbl').text;
+                                                                        console.log("Put request");
+                                                                        console.log("fileId"+FileResId);
+                                                                        var myent=view.up('form').down('#entityName').text;
+                                                                        console.log("entity: "+myent );
+                                                                        var myclmn=view.up('form').down('#columnName').text;
+                                                                        console.log("column: "+myclmn);
+                                                                        Ext.defer(function () {
+                                                                            Ext.Msg.confirm('Attach Column','Are you sure you want to set the attachment?',
+                                                                            function (button) {
+                                                                                if (button == 'yes') {
+                                                                                    var store =view.up('form').down('#ColumnsGridPanelMainForm').getStore();
+                                                                                    var rec = store.getAt(rowIndex);
+                                                                                    console.log(record);
+                                                                                    console.log("row index "+ rec.get('excelColumnIndex'));
+                                                                                    Ext.Ajax.request({
+                                                                                        url: '/entities',
+                                                                                        params:{fileId:FileResId,columnIndex:rec.get('excelColumnIndex'),entity:myent,entityColumn:myclmn},
+                                                                                        method  : 'PUT',
+                                                                                        success: function(response){
+                                                                                            Ext.Msg.alert('success','attach done !!!!');
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                        });
+                                                                    },
+                                                                    altText: 'Link!!',
+                                                                    iconCls: 'x-fa fa-paperclip'
                                                                 }
                                                             ]
                                                         }
@@ -188,7 +233,16 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                         },
                                         {
                                             xtype: 'panel',
-                                            title: 'Contents'
+                                            title: 'Contents',
+                                            items: [
+                                                {
+                                                    xtype: 'button',
+                                                    text: 'Import data',
+                                                    listeners: {
+                                                        click: 'onButtonClick'
+                                                    }
+                                                }
+                                            ]
                                         }
                                     ]
                                 }

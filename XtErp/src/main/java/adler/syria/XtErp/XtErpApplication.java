@@ -25,23 +25,22 @@ public class XtErpApplication {
 	    CommandLineRunner init(ImportableColumnsRepository repository) {
 	        return (args) -> {
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "DESCRIPTION", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "description", String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "SIGLE", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "sigle", String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "TVA_CEE" + 
-	        		   "", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "tva_cee" , String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "N_REG_COMM" 
+	        		   "n_reg_comm" 
 	        		   , String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "CAPITAL", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "capital", String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "NBR_PERS", int.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "nbr_pers", int.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "WEBSITE", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "website", String.class.getName(), new HashSet<ExcelColumn>()));
 	           repository.save(new ImportableColumns(ImportableEntities.Client, 
-	        		   "METIER", String.class.getName(), new HashSet<ExcelColumn>()));
+	        		   "metier", String.class.getName(), new HashSet<ExcelColumn>()));
 	           	           
 	        };
 	    }

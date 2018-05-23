@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import adler.syria.XtErp.storage.StorageService;
+import adler.syria.XtErp.Entities.Client;
 import adler.syria.XtErp.Entities.EntityManager;
+import adler.syria.XtErp.Entities.EntityPersistantManager;
 import adler.syria.XtErp.ImportProcess.ExcelColumn;
 import adler.syria.XtErp.ImportProcess.FileMetaData;
 import adler.syria.XtErp.ImportProcess.ImportProcess;
@@ -46,16 +48,16 @@ public class ImportProcessController {
 	private final StorageService storageService;
 	private final UploadedFileRepository uploadedFileRepository;
 	private final SearchProfileRepository searchProfileRepository;
-	private final EntityManager entityManager;
+	private final EntityPersistantManager entityPersistantManager;
 
 	@Autowired
 	public ImportProcessController(SearchProfileRepository searchProfileRepository, StorageService storageService,
-			UploadedFileRepository uploadedFileRepository, EntityManager entityManager) {
+			UploadedFileRepository uploadedFileRepository, EntityPersistantManager entityManager) {
 		super();
 		this.uploadedFileRepository = uploadedFileRepository;
 		this.storageService = storageService;
 		this.searchProfileRepository = searchProfileRepository;
-		this.entityManager = entityManager;
+		this.entityPersistantManager = entityManager;
 	}
 
 	@RequestMapping(value = "/metadata", method = RequestMethod.GET)
@@ -79,7 +81,7 @@ public class ImportProcessController {
 		SearchProfile searchProfile = searchProfileRepository.getOne(searchProfileID);
 		oldColumns = searchProfile.getImportProcessSet().iterator().next().getUploadedFile().getExcelColumns();
 
-		storageService.store(file);
+		storageService.store(file, uploadedFile.getId().toString());
 
 		searchProfile.setLastUsed(new java.util.Date());
 
@@ -123,36 +125,37 @@ public class ImportProcessController {
 
 		ImportProcess importProcess = new ImportProcess();
 		UploadedFile uploadedFile = new UploadedFile();
+		uploadedFile = uploadedFileRepository.save(uploadedFile);
 		Set<ExcelColumn> columns = new HashSet<ExcelColumn>();
 		FileInputStream excelFile = null;
-
+		String filePath = "";
 		try {
 
 			// Create the input stream to uploaded file to read data from it.
 			excelFile = (FileInputStream) file.getInputStream();
 
-			storageService.store(file);
+			filePath = storageService.store(file, uploadedFile.getId().toString());
 			Workbook workbook = new XSSFWorkbook(excelFile);
 
 			Sheet sheet = workbook.getSheetAt(0);
 			Iterator<Row> rows = sheet.iterator();
 
 			Row currentRow = rows.next();
-
+			Row secondRow = rows.next();
 			Iterator<Cell> cellsInRow = currentRow.iterator();
 
 			while (cellsInRow.hasNext()) {
 
 				Cell currentCell = cellsInRow.next();
 				String dataType;
-				if (currentCell.getCellType() == Cell.CELL_TYPE_NUMERIC)
-					dataType = int.class.toString();
-				else if (currentCell.getCellType() == Cell.CELL_TYPE_STRING)
-					dataType = String.class.toString();
-				else if (currentCell.getCellType() == Cell.CELL_TYPE_BOOLEAN)
-					dataType = boolean.class.toString();
+				if (secondRow.getCell(currentCell.getColumnIndex()).getCellType() == Cell.CELL_TYPE_NUMERIC)
+					dataType = int.class.getName();
+				else if (secondRow.getCell(currentCell.getColumnIndex()).getCellType() == Cell.CELL_TYPE_STRING)
+					dataType = String.class.getName();
+				else if (secondRow.getCell(currentCell.getColumnIndex()).getCellType() == Cell.CELL_TYPE_BOOLEAN)
+					dataType = boolean.class.getName();
 				else
-					dataType = String.class.toString();
+					dataType = String.class.getName();
 
 				columns.add(new ExcelColumn(currentCell.getStringCellValue(), currentCell.getColumnIndex(),
 						uploadedFile, dataType));
@@ -168,6 +171,7 @@ public class ImportProcessController {
 		FileMetaData metaData = new FileMetaData();
 		metaData.setFileName(file.getOriginalFilename());
 		metaData.setFileSize(file.getSize());
+		metaData.setFilePath(filePath);
 		uploadedFile.setMetaData(metaData);
 
 		String extension = "";
@@ -196,11 +200,12 @@ public class ImportProcessController {
 		}
 	}
 
-	@RequestMapping(value = "/import", method = RequestMethod.POST)
+	@RequestMapping(value = "/import", method = RequestMethod.GET)
 	public void importFile(@RequestParam("uploadedFileUniqueId") Long fileID) {
-		UploadedFile uploadedFile = uploadedFileRepository.getOne(fileID);				
+		EntityManager entityManager = new EntityManager();
+		UploadedFile uploadedFile = uploadedFileRepository.getOne(fileID);
 		try {
-			FileInputStream excelFile = new FileInputStream(uploadedFile.getMetaData().getFileName());
+			FileInputStream excelFile = new FileInputStream(uploadedFile.getMetaData().getFilePath());
 			Workbook workbook = new XSSFWorkbook(excelFile);
 
 			Sheet sheet = workbook.getSheetAt(0);
@@ -218,13 +223,23 @@ public class ImportProcessController {
 					ExcelColumn col = iterator.next();
 					if (col.getImportableColumn() != null) {
 						int index = col.getExcelColumnIndex();
-						Object value = currentRow.getCell(index).getStringCellValue();
-						values.put(col.getName(), value);
+						//Object value = currentRow.getCell(index).getStringCellValue();
+						Object value = null;
+						if (currentRow.getCell(index).getCellType() == Cell.CELL_TYPE_NUMERIC)
+							value  = (int) currentRow.getCell(index).getNumericCellValue();
+						else if (currentRow.getCell(index).getCellType() == Cell.CELL_TYPE_STRING)
+							value  = currentRow.getCell(index).getStringCellValue();
+						else if (currentRow.getCell(index).getCellType() == Cell.CELL_TYPE_BOOLEAN)
+							value  = currentRow.getCell(index).getBooleanCellValue();
+						else
+							value  = currentRow.getCell(index).getStringCellValue();
+						values.put(col.getImportableColumn().getName(), value);
 					}
 				}
 				ImportableEntities importableEntity = uploadedFile.getExcelColumns().iterator().next()
 						.getImportableColumn().getImportableEntity();
-				entityManager.populatetWithValues(importableEntity, values);
+				Object obj = entityManager.populatetWithValues(importableEntity, values);
+				entityPersistantManager.persist(obj);
 			}
 			excelFile.close();
 

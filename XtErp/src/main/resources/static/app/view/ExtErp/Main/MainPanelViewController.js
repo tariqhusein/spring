@@ -18,10 +18,15 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
     alias: 'controller.exterp.main.mainpanel',
 
     onUploadButtonMainFormClick: function(button, e, eOpts) {
+        //Ext.Msg.alert("success");
         var fileLoad=button.up('form').down('#uploadFileMainForm');
         var myWindow=button.up('form').getForm();
         var myLbl=button.up('form').down('#metaFileNamelbl');
+        var myent=button.up('form').down('#entityName');
+        var myclmnt=button.up('form').down('#columnName');
         myLbl.setVisible(false);
+        myent.setVisible(false);
+        myclmnt.setVisible(false);
         //myLbl.setText("Before get");
         if(myWindow.isValid())
 
@@ -147,8 +152,13 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
     onComboboxSelect: function(combo, record, eOpts) {
         try
         {
-            var entityName=combo.getValue();
-            var myUrl='/entities/'+entityName+'/columns';
+
+
+            var entityName1=combo.getValue();
+            var myent=combo.up('form').down('#entityName');
+
+            myent.setText(entityName1);
+            var myUrl='/entities/'+entityName1+'/columns';
             console.log(myUrl);
 
             Ext.Ajax.request({
@@ -163,7 +173,9 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                     //var columnsStr=Ext.getStore('')
                     console.log(responseData);
                     var columnCmb= combo.up('form').down('#entityColumnName');
-                    columnCmb.getStore().loadData(responseData);
+                    var Istore= columnCmb.getStore();
+                    Istore.getProxy().setUrl(myUrl);
+                    Istore.loadData(responseData);
                 }
             });
 
@@ -173,6 +185,27 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
         {
             console.log(ex1);
         }
+    },
+
+    onEntityColumnNameSelect: function(combo, record, eOpts) {
+        var myclmn=combo.up('form').down('#columnName');
+        myclmn.setText(combo.getValue());
+    },
+
+    onButtonClick: function(button, e, eOpts) {
+        var myLbl=button.up('form').down('#metaFileNamelbl');
+        var fileResId=myLbl.text;
+        Ext.Ajax.request({
+
+            url: '/file/upload/import',
+            method  : 'GET',
+            params:{uploadedFileUniqueId:fileResId},
+            success:function(response3)
+            {
+                console.log(response3.responseText);
+                Ext.Msg.alert('success','import done !!!!');
+            }
+        });
     }
 
 });
