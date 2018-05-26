@@ -31,7 +31,8 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
         'Ext.view.Table',
         'Ext.grid.column.Widget',
         'Ext.form.field.ComboBox',
-        'Ext.grid.column.Action'
+        'Ext.grid.column.Action',
+        'Ext.ProgressBar'
     ],
 
     controller: 'exterp.main.mainpanel',
@@ -50,7 +51,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
             items: [
                 {
                     xtype: 'panel',
-                    title: 'Excel Files',
+                    title: 'Files',
                     items: [
                         {
                             xtype: 'form',
@@ -86,17 +87,22 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                 {
                                                     xtype: 'label',
                                                     itemId: 'columnName',
-                                                    text: 'My Label'
+                                                    text: '...'
+                                                },
+                                                {
+                                                    xtype: 'label',
+                                                    itemId: 'allDataLbl',
+                                                    text: '...'
                                                 },
                                                 {
                                                     xtype: 'label',
                                                     itemId: 'entityName',
-                                                    text: 'My Label'
+                                                    text: '...'
                                                 },
                                                 {
                                                     xtype: 'label',
                                                     itemId: 'metaFileNamelbl',
-                                                    text: 'File Name'
+                                                    text: '...'
                                                 },
                                                 {
                                                     xtype: 'displayfield',
@@ -202,6 +208,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                                         console.log("entity: "+myent );
                                                                         var myclmn=view.up('form').down('#columnName').text;
                                                                         console.log("column: "+myclmn);
+
                                                                         Ext.defer(function () {
                                                                             Ext.Msg.confirm('Attach Column','Are you sure you want to set the attachment?',
                                                                             function (button) {
@@ -216,6 +223,11 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                                                         method  : 'PUT',
                                                                                         success: function(response){
                                                                                             Ext.Msg.alert('success','attach done !!!!');
+                                                                                            var alldata=view.up('form').down('#allDataLbl');
+                                                                                            if(alldata.text=='asd')
+                                                                                            alldata.setText(myent+'-'+myclmn);
+                                                                                            else
+                                                                                            alldata.setText(alldataLbl.text+','+myent+'-'+myclmn);
                                                                                         }
                                                                                     });
                                                                                 }
@@ -237,9 +249,18 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                             items: [
                                                 {
                                                     xtype: 'button',
+                                                    itemId: 'importDataBtn',
                                                     text: 'Import data',
                                                     listeners: {
                                                         click: 'onButtonClick'
+                                                    }
+                                                },
+                                                {
+                                                    xtype: 'progressbar',
+                                                    id: 'importingProgressBar',
+                                                    width: 400,
+                                                    listeners: {
+                                                        update: 'onProgressbarUpdate'
                                                     }
                                                 }
                                             ]
@@ -256,7 +277,34 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                 },
                 {
                     xtype: 'panel',
-                    title: 'Tab 3'
+                    title: 'Tab 3',
+                    items: [
+                        {
+                            xtype: 'form',
+                            bodyPadding: 10,
+                            title: 'My Form',
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    text: 'MyButton',
+                                    listeners: {
+                                        click: 'onButtonClick21'
+                                    }
+                                },
+                                {
+                                    xtype: 'combobox',
+                                    itemId: 'testCMB',
+                                    renderData: [
+                                        'aa',
+                                        'dd',
+                                        'ss',
+                                        'asd'
+                                    ],
+                                    fieldLabel: 'Label'
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         }

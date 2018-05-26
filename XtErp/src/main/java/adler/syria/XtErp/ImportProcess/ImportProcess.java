@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -16,14 +17,16 @@ public class ImportProcess {
 
 	@Id
 	@GeneratedValue
+	@Column(name = "UNIQUEID")
 	private Long id;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private UploadedFile uploadedFile;
 
+	@Column(name = "DATE")
 	private Date date;
 	@ManyToOne
-	private SearchProfile searchProfile;
+	private ImportProfile importProfile;
 
 	public Long getId() {
 		return id;
@@ -39,17 +42,17 @@ public class ImportProcess {
 		this.uploadedFile = uploadedFile;
 	}
 
-	public SearchProfile getSearchProfile() {
-		return searchProfile;
+	public ImportProfile getSearchProfile() {
+		return importProfile;
 	}
 
-	public void setSearchProfile(SearchProfile searchProfile) {
-		if (searchProfile.getImportProcessSet() == null) {
-			searchProfile.setImportProcessSet(new HashSet<ImportProcess>());
+	public void setSearchProfile(ImportProfile importProfile) {
+		if (importProfile.getImportProcessSet() == null) {
+			importProfile.setImportProcessSet(new HashSet<ImportProcess>());
 		}
-		searchProfile.getImportProcessSet().add(this);
+		importProfile.getImportProcessSet().add(this);
 
-		this.searchProfile = searchProfile;
+		this.importProfile = importProfile;
 	}
 
 	public void setId(Long id) {

@@ -1,28 +1,50 @@
 package adler.syria.XtErp.Entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "CLEINT")
 public class Client {
 	@Id
 	@GeneratedValue
+	@Column(name = "UNIQUEID")
 	private Long id;
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
+
 		this.id = id;
 	}
+	
+	@Column(name = "DESCRIPTION")
 	private String description;
+	
+	@Column(name = "SIGEL")
 	private String sigle;
+	
+	@Column(name = "TVA_CEE")
 	private String tva_cee;
+	
+	@Column(name = "N_REG_COMM")
 	private String n_reg_comm;
+	@Column(name = "CAPITAL")
 	private String capital;
+	
+	@Column(name = "NB_PERS")
 	private int nbr_pers;
+	
+	@Column(name ="WEBSITE")
 	private String website;
+	
+	@Column(name = "METIER")
 	private String metier;
+	
+	
 	public String getDescription() {
 		return description;
 	}

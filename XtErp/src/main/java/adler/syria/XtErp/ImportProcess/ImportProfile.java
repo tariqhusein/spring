@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,13 +13,16 @@ import javax.persistence.OneToMany;
 
 @Entity
 
-public class SearchProfile {
+public class ImportProfile {
 	@Id
 	@GeneratedValue
+	@Column(name ="UNIQUEID")
 	private Long id;
 	@OneToMany(mappedBy = "searchProfile",cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
 	private Set<ImportProcess> importProcessSet;
+	
+	@Column(name ="LASTUSED")
 	private Date lastUsed;
 
 	public Long getId() {

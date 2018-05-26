@@ -1,14 +1,21 @@
 package adler.syria.XtErp.ImportProcess;
 
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
 public class FileMetaData {
-
+	@Column(name = "FILENAME")
 	private String fileName;
+	
+	@Column(name = "FILEPATH")
 	private String filePath;
+	
+	@Column(name = "FILETYPE")
 	private String fileType;
+	
+	@Column(name = "FILESIZE")
 	private Long fileSize;
 	
 

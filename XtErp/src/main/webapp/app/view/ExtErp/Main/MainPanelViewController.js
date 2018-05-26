@@ -18,15 +18,18 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
     alias: 'controller.exterp.main.mainpanel',
 
     onUploadButtonMainFormClick: function(button, e, eOpts) {
-        //Ext.Msg.alert("success");
+
+
         var fileLoad=button.up('form').down('#uploadFileMainForm');
         var myWindow=button.up('form').getForm();
         var myLbl=button.up('form').down('#metaFileNamelbl');
         var myent=button.up('form').down('#entityName');
+        var alldata=button.up('form').down('#allDataLbl');
         var myclmnt=button.up('form').down('#columnName');
         myLbl.setVisible(false);
         myent.setVisible(false);
         myclmnt.setVisible(false);
+        alldata.setVisible(false);
         //myLbl.setText("Before get");
         if(myWindow.isValid())
 
@@ -188,17 +191,52 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
     },
 
     onEntityColumnNameSelect: function(combo, record, eOpts) {
-        var myclmn=combo.up('form').down('#columnName');
-        myclmn.setText(combo.getValue());
+        try
+        {var myent=combo.up('form').down('#entityName').text;
+
+            var myclmn=combo.up('form').down('#columnName');
+            myclmn.setText(combo.getValue());
+            var clmn=combo.getValue();
+            var alldata=view.up('form').down('#allDataLbl').text.split(',');
+            var found=false;
+            for(var i=0;i<alldata.length;i++)
+            {
+                if(alldata[i] ==myent+'-'+clmn)
+                {
+                    found=true;
+                    Ext.Msg.alert('already exits column');
+                    combo.focus(true);
+                    break;
+                }
+            }
+        }
+        catch(ext)
+        {
+
+        }
     },
 
     onButtonClick: function(button, e, eOpts) {
+
+
         var myLbl=button.up('form').down('#metaFileNamelbl');
         var fileResId=myLbl.text;
+        var pbar3=button.up('form').down('#importingProgressBar');
+        pbar3.wait({
+            interval: 1000,
+            duration: 50000,
+            increment: 50,
+            text:'importing data,please waite!!...',
+            fn:function() {
+                //button.dom.disabled = false;
+                pbar3.updateText('importing done !!!');
+                button.setText('Import Data');
+            }
+        });
         Ext.Ajax.request({
 
             url: '/file/upload/import',
-            method  : 'GET',
+            method  : 'POST',
             params:{uploadedFileUniqueId:fileResId},
             success:function(response3)
             {
@@ -206,6 +244,16 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                 Ext.Msg.alert('success','import done !!!!');
             }
         });
+    },
+
+    onProgressbarUpdate: function(progressbar, value, text, eOpts) {
+        //var btn=progressbar.up('form').down('#importDataBtn');
+        //btn.setText('importing ....');
+        //btn.dom.disable=true;
+    },
+
+    onButtonClick21: function(button, e, eOpts) {
+
     }
 
 });
