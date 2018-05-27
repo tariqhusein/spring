@@ -29,7 +29,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewModel', {
             model: 'MetaFileData.model.ColumnsModel',
             proxy: {
                 type: 'ajax',
-                url: '/file/upload',
+                url: '/XtErp/file/upload',
                 reader: {
                     type: 'json'
                 }
@@ -39,7 +39,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewModel', {
             model: 'MetaFileData.model.UploadedFile',
             proxy: {
                 type: 'ajax',
-                url: '/file/upload',
+                url: '/XtErp/file/upload',
                 reader: {
                     type: 'json'
                 }
@@ -57,7 +57,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewModel', {
             model: 'MetaFileData.model.MetaFileModel',
             proxy: {
                 type: 'ajax',
-                url: '/file/download/metadata'
+                url: '/XtErp/file/download/metadata'
             },
             fields: [
                 {
@@ -87,7 +87,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewModel', {
             model: 'MetaFileData.model.ExcelColumnModel',
             proxy: {
                 type: 'ajax',
-                url: '/file/upload/columns',
+                url: '/XtErp/file/upload/columns',
                 reader: {
                     type: 'json'
                 }

@@ -26,7 +26,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewController', {
         {
             myWindow.submit(
             {
-                url:'/file/upload',
+                url:'/XtErp/file/upload',
                 waitMsg: 'File uploading...',
                 method:'POST',
                 success: function(myWindow,response) {
@@ -39,7 +39,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewController', {
                     if(FileResId !== null)
                     {
                         Ext.Ajax.request({
-                            url: '/file/upload/metadata',
+                            url: '/XtErp/file/upload/metadata',
                             method  : 'GET',
                             params:{uploadedFileUniqueId:FileResId},
                             success: function(response){
@@ -76,7 +76,7 @@ Ext.define('MetaFileData.view.OpenFileWindowViewController', {
                                     console.log (ex1);
                                 }
                                 Ext.Ajax.request({
-                                    url: '/file/upload/columns',
+                                    url: '/XtErp/file/upload/columns',
                                     method  : 'GET',
                                     params:{uploadedFileUniqueId:FileResId},
                                     success: function(response1){

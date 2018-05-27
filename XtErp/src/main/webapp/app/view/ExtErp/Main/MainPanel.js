@@ -59,7 +59,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                             bodyPadding: 10,
                             title: '',
                             method: 'POST',
-                            url: '/file/upload',
+                            url: '/XtErp/file/upload',
                             items: [
                                 {
                                     xtype: 'filefield',
@@ -218,7 +218,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanel', {
                                                                                     console.log(record);
                                                                                     console.log("row index "+ rec.get('excelColumnIndex'));
                                                                                     Ext.Ajax.request({
-                                                                                        url: '/entities',
+                                                                                        url: '/XtErp/entities',
                                                                                         params:{fileId:FileResId,columnIndex:rec.get('excelColumnIndex'),entity:myent,entityColumn:myclmn},
                                                                                         method  : 'PUT',
                                                                                         success: function(response){

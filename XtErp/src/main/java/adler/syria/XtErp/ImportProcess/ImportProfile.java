@@ -10,15 +10,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
-
+@Table(name = "IMPORT_PROFILE")
 public class ImportProfile {
 	@Id
 	@GeneratedValue
 	@Column(name ="UNIQUEID")
 	private Long id;
-	@OneToMany(mappedBy = "searchProfile",cascade = CascadeType.ALL,
+	@OneToMany(mappedBy = "importProfile",cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
 	private Set<ImportProcess> importProcessSet;
 	

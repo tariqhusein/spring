@@ -52,7 +52,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
             ],
             proxy: {
                 type: 'ajax',
-                url: '/file/upload/metadata'
+                url: '/XtErp/file/upload/metadata'
             }
         },
         columnsStoreMainForm: {
@@ -70,7 +70,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
             ],
             proxy: {
                 type: 'ajax',
-                url: '/file/upload/columns',
+                url: '/XtErp/file/upload/columns',
                 reader: {
                     type: 'json'
                 }
@@ -80,7 +80,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
             autoLoad: true,
             proxy: {
                 type: 'ajax',
-                url: '/entities',
+                url: '/XtErp/entities',
                 reader: {
                     type: 'json',
                     transform: function(data) {
@@ -112,7 +112,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewModel', {
             ],
             proxy: {
                 type: 'ajax',
-                url: '/entities/Client/columns'
+                url: '/XtErp/entities/Client/columns'
             }
         }
     }

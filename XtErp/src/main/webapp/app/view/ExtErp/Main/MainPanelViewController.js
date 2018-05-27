@@ -36,7 +36,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
         {
             myWindow.submit(
             {
-                url:'/file/upload',
+                url:'/XtErp/file/upload',
                 waitMsg: 'File uploading...',
                 method:'POST',
                 success: function(myWindow,response) {
@@ -46,7 +46,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                     if(FileResId !== null)
                     {
                         Ext.Ajax.request({
-                            url: '/file/upload/metadata',
+                            url: '/XtErp/file/upload/metadata',
                             method  : 'GET',
 
                             params:{uploadedFileUniqueId:FileResId},
@@ -123,7 +123,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
             var FileResId=button.up('form').down('#metaFileNamelbl').text;
             console.log(FileResId);
             Ext.Ajax.request({
-                url: '/file/upload/columns',
+                url: '/XtErp/file/upload/columns',
                 method  : 'GET',
                 params:{uploadedFileUniqueId:FileResId},
                 //jsonData:excelColumn,
@@ -137,7 +137,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
                 }
             });
             Ext.Ajax.request({
-                url: '/entities',
+                url: '/XtErp/entities',
                 method  : 'GET',
                 success: function(response3){
                     console.log(response3.responseText);
@@ -161,7 +161,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
             var myent=combo.up('form').down('#entityName');
 
             myent.setText(entityName1);
-            var myUrl='/entities/'+entityName1+'/columns';
+            var myUrl='/XtErp/entities/'+entityName1+'/columns';
             console.log(myUrl);
 
             Ext.Ajax.request({
@@ -235,7 +235,7 @@ Ext.define('MetaFileData.view.ExtErp.Main.MainPanelViewController', {
         });
         Ext.Ajax.request({
 
-            url: '/file/upload/import',
+            url: '/XtErp/file/upload/import',
             method  : 'POST',
             params:{uploadedFileUniqueId:fileResId},
             success:function(response3)

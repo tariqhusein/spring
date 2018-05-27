@@ -45,7 +45,7 @@ Ext.define('MetaFileData.view.OpenFileWindow', {
             defaultButton: 'myUploadButton',
             title: '',
             method: 'Post',
-            url: '/file/upload',
+            url: '/XtErp/file/upload',
             dockedItems: [
                 {
                     xtype: 'filefield',

@@ -28,7 +28,7 @@ Ext.define('MetaFileData.view.OpenProfileWindowViewModel', {
             model: 'MetaFileData.model.ProfileModel',
             proxy: {
                 type: 'ajax',
-                url: '/searchProfiles',
+                url: '/XtErp/searchProfiles',
                 reader: {
                     type: 'json'
                 }
